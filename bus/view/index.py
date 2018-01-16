@@ -2,6 +2,7 @@
 
 from view import route, url_for, View
 import random
+import config
 
 @route('/', name='index')
 class Index(View):
@@ -49,10 +50,10 @@ class Position(View):
 
 
 def get_position():# 这个设计用得不习惯，我在这个文件中没办法创建全局变量，因为是从其他文件调用这里的class，变量好像会无效。用config试试
-	i = 0
+	print(config.i)
 	position = [[119.2205783, 26.02993],[119.219333,26.032609],[119.21918,26.033299],[119.218857,26.034062],[119.218426,26.034549],[119.218021,26.034898],[119.217141,26.03575]]
-	pos = position[i]
-	i += 1
+	pos = position[config.i]
+	config.i = (config.i+1) % 7
 	return pos
 	
 	
