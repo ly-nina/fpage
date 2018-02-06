@@ -3,6 +3,9 @@
 from view import route, url_for, View
 import random
 import config
+from view import Alipay_test
+
+
 
 @route('/', name='index')
 class Index(View):
@@ -57,5 +60,27 @@ def get_position():# 这个设计用得不习惯，我在这个文件中没办�
 	return pos
 	
 	
+@route('/alipay', name='alipay')
+class Alipay(View):
+	def get(self):
+		self.render('alipay.html')
 	
+	
+	def post(self):
+		subject = self.get_argument("WIDsubject")
+		out_trade_no = self.get_argument("WIDout_trade_no")
+		total_amount = self.get_argument("WIDtotal_amount")
+		body = self.get_argument("WIDbody")
+		print(total_amount)
+		
+		requestBuilder = Alipay_test.AlipayTradePagePayContentBuilder()
+		requestBuilder.set_body(body)
+		requestBuilder.set_subject(subject)
+		requestBuilder.set_total_amount(total_amount)
+		requestBuilder.set_out_trade_no(out_trade_no)
+		
+		aop = Alipay_test.AlipayTradeService(Alipay_test.config_list)
+		response = aop.pagePay(requestBuilder, Alipay_test.config_list['return_url'], Alipay_test.config_list['notify_url'])
+		
+		self.write(response)
 

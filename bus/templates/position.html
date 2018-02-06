@@ -53,147 +53,13 @@
 	
 //------------------------------------------------	
 
-	function GetMarker(data_info){
-	//v1.0 直接刷新位置
-	//感觉太肤浅了，只有刷新效果，没有车子在动的动态效果。
-		map.clearOverlays();
-		for(i=0; i<=4; i++){
-			var marker = new BMap.Marker(new BMap.Point(pos[i][0], pos[i][1]));
-			map.addOverlay(marker);
-			marker.setAnimation(BMAP_ANIMATION_BOUNCE);
-			//marker.addEventListener("click", func_get_msg_from_server);//预定添加一个点击时间，显示一些信息
-			};
-		console.info(data_info);
-		//alert('123');
-	};
-	
+
 //------------------------------------------------	
 
-	function GetMarker_dynamic(data_info){
-	//v2.0 动态显示效果
-	//感觉还是有点突兀，需要有点移动的效果
-		map.clearOverlays();
-		position_x = data_info['position_x'];
-		position_y = data_info['position_y'];
-		var marker = new BMap.Marker(new BMap.Point(position_x, position_y));
-		map.addOverlay(marker);
-		marker.setAnimation(BMAP_ANIMATION_BOUNCE);
-		//marker.addEventListener("click", func_get_msg_from_server);//预定添加一个点击时间，显示一些信息
-		console.info(data_info);
-	};
-	
-//------------------------------------------------	
-
-	function GetMarker_dynamic_with_moving_effect(data_info){
-	//v3.0.1 动态且移动的效果（路书）
-	//单纯两点画线移动
-		map.enableScrollWheelZoom();
-		if (data_info==''){
-			var begin_point=pt;
-			var end_point=p1;
-		}
-		else{
-			x = data_info['position_x'];
-			y = data_info['position_y'];
-			var begin_point=end_point;
-			var end_point=new BMap.Point(x, y);
-			
-		}
-		var drv = new BMap.DrivingRoute('福建', {
-			onSearchComplete: function(res) {
-				if (drv.getStatus() == BMAP_STATUS_SUCCESS) {
-					var plan = res.getPlan(0);
-					var arrPois =[];
-					for(var j=0;j<plan.getNumRoutes();j++){
-						var route = plan.getRoute(j);
-						arrPois= arrPois.concat(route.getPath());
-					}
-					map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));//画线
-					map.setViewport(arrPois);//在一个版面显示全部路径
-					
-					lushu = new BMapLib.LuShu(map,arrPois,{
-					defaultContent:"",//"从天安门到百度大厦"
-					autoView:true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
-					icon  : new BMap.Icon('http://lbsyun.baidu.com/jsdemo/img/car.png', new BMap.Size(52,26),{anchor : new BMap.Size(27, 13)}),
-					speed: 1000,
-					enableRotation:true,//是否设置marker随着道路的走向进行旋转
-					landmarkPois: [
-					]
-					});          
-				}
-			}
-		});
-		drv.search(begin_point, end_point);
-		console.info('222');
-		console.info(begin_point,end_point);
-		
-		function check(){
-			drv.search(p1, test);
-			console.info('333');
-		};
-		return check;
-	}
-	//GetMarker_dynamic_with_moving_effect('');//执行函数就已经做好画布，start的时候只是开始运行，而不是start的时候再做画布。
-	//小白没有固定线路，所以不可能先定好路线再用start和pause去控制。得想个办法。主要是clearOverlays之后执行函数，会有一个跳的动作很尴尬
-	//把drv放到外面定义，等后面执行 drv.search 来运行。--未测试  v4.0.1
-	
-	
-	var move;
-	function GetMarker_dynamic_with_moving_effect_v2(data_info){
-	//v4.0.1 在3.0.1的基础上实现移动的过程中改动目的地（路书）
-		map.enableScrollWheelZoom();
-		if (data_info==''){
-			var begin_point=pt;
-			var end_point=p1;
-		}
-		else{
-			x = data_info['position_x'];
-			y = data_info['position_y'];
-			var begin_point=p1;
-			var end_point=new BMap.Point(x, y);
-			
-		}
-		move = new BMap.DrivingRoute('福建', {
-			onSearchComplete: function(res) {
-				if (move.getStatus() == BMAP_STATUS_SUCCESS) {
-					var plan = res.getPlan(0);
-					var arrPois =[];
-					for(var j=0;j<plan.getNumRoutes();j++){
-						var route = plan.getRoute(j);
-						arrPois= arrPois.concat(route.getPath());
-					}
-					map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));//画线
-					map.setViewport(arrPois);//在一个版面显示全部路径
-					
-					lushu = new BMapLib.LuShu(map,arrPois,{
-					defaultContent:"",//"从天安门到百度大厦"
-					autoView:true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
-					icon  : new BMap.Icon('http://lbsyun.baidu.com/jsdemo/img/car.png', new BMap.Size(52,26),{anchor : new BMap.Size(27, 13)}),
-					speed: 10,
-					enableRotation:true,//是否设置marker随着道路的走向进行旋转
-					landmarkPois: [
-					]
-					});          
-				}
-				console.info('222');
-				console.info(begin_point,end_point);
-			}
-		});
-		
-		
-	};
-	
-	function run(begin_point, end_point){
-		move.search(begin_point, end_point);
-	}
-	
-//------------------------------------------------	
+//重写版本。根据步骤一步一步做
 
 
-	function GetMarker_dynamic_with_point(){
-	//用点跳很尬，算了
-	}
-//------------------------------------------------	
+//------------------------------------------------
 
 
 	setInterval(function () {//会以指定周期时间无限运行下去
@@ -203,33 +69,7 @@
          cache: false, 
 		 dataType: 'json', 
 		 success: function (data) {
-			//alert('success');
-			//GetMarker_dynamic(data);
-			
-			//路书v3.0.1
-			/*
-			x = data['position_x'];
-			y = data['position_y'];
-			pt=p1;
-			p1=new BMap.Point(x, y);
-			console.info('111');
-			console.info(pt,p1);
-			GetMarker_dynamic_with_moving_effect('');
-			lushu.start();
-			*/
-			
-			//v4.0.1
-			//move.search(begin_point, end_point);//通过执行search来开始函数。
-			/*
-			x = data['position_x'];
-			y = data['position_y'];
-			pt=p1;
-			p1=new BMap.Point(x, y);
-			console.info('v4.0.1');
-			console.info(pt,p1);
-			GetMarker_dynamic_with_moving_effect('');
-			lushu.start();
-			*/
+			pass;
 			
 			} });
     }, 10 * 1000);
