@@ -1,0 +1,76 @@
+<html lang="en"> 
+<head> 
+	<meta charset="utf-8" /> 
+	<title>路书</title> 
+	<style type="text/css">
+		body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+		#map_canvas{width:100%;height:100%;}
+
+	</style>
+	<script src="http://api.map.baidu.com/api?v=2.0&ak=1xW52e31qGyTjB19cLC8kZH8MRHU3S6E"></script>
+	<script src="lushu.js"></script>
+</head> 
+<body> 
+	<div id="map_canvas"></div> 
+
+
+	<script> 
+	var map = new BMap.Map('map_canvas');
+	map.enableScrollWheelZoom();
+	map.centerAndZoom(new BMap.Point(119.2205783, 26.02993), 17);
+	
+	var pt = new BMap.Point(119.21918,26.033299);
+	var p1 = new BMap.Point(119.218857,26.034062);
+	var p2 = new BMap.Point(119.218426,26.034549);
+	var begin_pos, end_pos;
+	
+	var lushu;
+	// 实例化一个驾车导航用来生成路线
+setInterval(function () {//会以指定周期时间无限运行下去
+	if(begin_pos==null){
+		begin_pos = pt;
+		end_pos = p1;
+	}
+    var driving = new BMap.DrivingRoute(map);
+	driving.search(begin_pos, end_pos);
+	
+	if(lushu==null||!lushu.getMoving()){
+		driving.setSearchCompleteCallback(function (result){
+			if (driving.getStatus() == BMAP_STATUS_SUCCESS) {
+				var plan = result.getPlan(0);
+				var arrPois =[];
+				for(var j=0;j<plan.getNumRoutes();j++){
+					var route = plan.getRoute(j);
+					arrPois= arrPois.concat(route.getPath());
+				}
+				map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));//这是显示一条线
+				map.setViewport(arrPois);
+				
+				if(lushu==null){
+					lushu = new BMapLib.LuShu(map, arrPois,{
+						defaultContent: "",
+						autoView: true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
+						icon: new BMap.Icon('http://developer.baidu.com/map/jsdemo/img/car.png', new BMap.Size(52, 26), {anchor: new BMap.Size(27, 13)}),
+						speed: 1,
+						enableRotation: true,//是否设置marker随着道路的走向进行旋转
+						landmarkPois: [
+						   {lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						   {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="http://map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
+						   {lng:116.381476,lat:39.974073,html:'肯德基早餐<div><img src="http://ishouji.baidu.com/resource/images/map/show_pic04.gif"/></div>',pauseTime:2}
+						]
+					});
+					lushu.start();
+					begin_pos = p1;
+					end_pos = p2;
+				}
+			else{
+				console.log('gopath');
+				lushu.goPath(arrPois);
+			}
+			}
+		});
+	}
+}, 10 * 1000);
+</script> 
+</body> 
+</html> 

@@ -2,6 +2,7 @@ import base64
 import json
 import time
 import OpenSSL.crypto as ct
+from OpenSSL.crypto import FILETYPE_PEM
 
 # config 官方demo是字典
 config_list = {
@@ -42,15 +43,19 @@ class AlipayTradePagePayContentBuilder:
 
     def set_body(self, body):  # 私有变量
         self.body = body
+        self.bizContentarr['body'] = body
 
     def set_subject(self, subject):
         self.subject = subject
+        self.bizContentarr['subject'] = subject
 
     def set_out_trade_no(self, outTradeNo):
         self.outTradeNo = outTradeNo
+        self.bizContentarr['out_trade_no'] = outTradeNo
 
     def set_total_amount(self, totalAmount):
         self.totalAmount = totalAmount
+        self.bizContentarr['total_amount'] = totalAmount
 
     def getBizContent(self):
         if self.bizContentarr is not None:
@@ -109,7 +114,7 @@ class AlipayTradeService:
         aop.apiVersion = '1.0'
         aop.appId = self.app_id
         aop.format = self.format
-        # aop.sign = self.sign_type
+        aop.signType = self.sign_type
         aop.postCharset = self.charset
         aop.gatewayUrl = self.gateway_url
         aop.alipayrsaPublicKey = self.alipay_public_key
@@ -118,7 +123,7 @@ class AlipayTradeService:
 
         if isPage:
             result = aop.PageExecute(req, 'post')
-            print(result)
+            # print(result)
         else:
             result = None
             # result = aop.Execute(req)
@@ -180,7 +185,7 @@ class AopClient:
     debugInfo = False
     signType = 'RSA'
     alipaySdkVersion = "alipay-sdk-php-20161101"
-    rsaPrivateKeyFilePath = ''
+    rsaPrivateKeyFilePath = r'F:\work\LanS\LED\pay\Alipay_for_python'
     fileCharset = "UTF-8"
 
     def PageExecute(self, req, method="POST"):
@@ -265,16 +270,34 @@ class AopClient:
         if self.checkEmpty(self.rsaPrivateKeyFilePath):
             prikey = self.rsaPrivateKey
             res = '-----BEGIN RSA PRIVATE KEY-----\n' + self.wordwrap(prikey, 64) + '\n-----END RSA PRIVATE KEY-----'
+            
+            with open(r'%s\key.pem' % self.rsaPrivateKeyFilePath, 'w') as f:
+                f.write(res)
+            
+        
         else:  # 不作路径设置，直接传入私钥值，所以先不管下面的读取私钥文件操作
-            res = ''
-
+            with open(r'F:\work\LanS\LED\pay\Alipay_for_python\key.pem', 'r') as f:
+                res = f.read()
+            
+        load_key = ct.load_privatekey(FILETYPE_PEM, res)
+        
         if not res:
             raise Exception('RSA Error!')
-
-        if 'RSA' == signType:
-            sign_data = ct.sign(res, data, b'sha256')
+        """
+        File "D:\python3\lib\site-packages\OpenSSL\crypto.py", line 2867, in sign
+            digest_obj = _lib.EVP_get_digestbyname(_byte_string(digest))
+          File "D:\python3\lib\site-packages\OpenSSL\_util.py", line 112, in byte_string
+            return s.encode("charmap")
+        AttributeError: 'bytes' object has no attribute 'encode'
+        https://pyopenssl.readthedocs.io/en/latest/api/crypto.html#OpenSSL.crypto.PKey
+        """
+        # res 应该要是PKey 类型。
+        if 'RSA2' == signType:
+            sign_data = ct.sign(load_key, data, 'sha256')
+            # ct.load_privatekey()
+            
         else:
-            sign_data = ct.sign(res, data, b'sha1')
+            sign_data = ct.sign(load_key, data, 'sha1')
 
         # python 没有free操作
         # if not self.checkEmpty(self.rsaPrivateKeyFilePath):
@@ -295,14 +318,17 @@ class AopClient:
 
     def buildRequestForm(self, param_temp):
         sHtml = "<form id='alipaysubmit' name='alipaysubmit' action='" + self.gatewayUrl + "?charset=" + self.postCharset.strip() + "' method='POST'>"
-
-        for k, v in param_temp:
+        
+        for k, v in param_temp.items():
             if not self.checkEmpty(v):
-                v = v.replace("'", "&apos")
+                # print(v)
+                # v = v.replace("'", "&apos")
+                if k == 'sign':
+                    v = v.decode()
                 sHtml += "<input type='hidden' name='" + k + "' value='" + v + "'/>"
 
         # submit按钮控件请不要含有name属性
-        sHtml += "<input type='submit' value='ok' style='display:none;''></form>"
+        sHtml += "<input type='submit' value='ok' style='display:none;'></form>"
         sHtml += "<script>document.forms['alipaysubmit'].submit();</script>"
         return sHtml
 
@@ -318,10 +344,15 @@ class AopClient:
 
         return False
 
-
+'''
 if __name__ == '__main__':
+    
     testClass = AlipayTradePagePayContentBuilder()
     testClass.set_body('123')
     testClass.set_out_trade_no('a')
-    print(testClass.bizContentarr)
-
+    # print(testClass.bizContentarr)
+    aop = AlipayTradeService(config_list)
+    response = aop.pagePay(testClass, config_list['return_url'], config_list['notify_url'])
+    
+'''
+    

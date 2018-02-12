@@ -1,0 +1,93 @@
+<html lang="en"> 
+<head> 
+	<meta charset="utf-8" /> 
+	<title>路书</title> 
+	<style type="text/css">
+		body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+	</style>
+	<script src="http://api.map.baidu.com/api?v=2.0&ak=1xW52e31qGyTjB19cLC8kZH8MRHU3S6E"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script>
+</head> 
+<body> 
+	<div id="allmap"></div> 
+</body> 
+<script type="text/javascript">
+	var map = new BMap.Map('allmap');
+
+	map.centerAndZoom(new BMap.Point(116.404, 39.915), 15);
+	var myP1 = new BMap.Point(116.380967,39.913285);    //起点
+	var myP2 = new BMap.Point(116.424374,39.914668);    //终点
+	
+	var myIcon = new BMap.Icon('http://lbsyun.baidu.com/jsdemo/img/car.png', new BMap.Size(52,26),{anchor : new BMap.Size(27, 13)});
+	
+	
+	var driving = new BMap.DrivingRoute(map); 
+	driving.search(myP1, myP2);
+	driving.setSearchCompleteCallback(function(){
+	var pts = driving.getResults().getPlan(0).getRoute(0).getPath();
+	var paths = pts.length;    //获得有几个点
+	var carMk = new BMap.Marker(pts[0],{icon:myIcon});
+	map.addOverlay(carMk);
+	console.log(paths);
+	i=0;
+	function resetMkPoint(i){
+		carMk.setPosition(pts[i]);
+		if(i < paths){
+			console.log(i);
+			setTimeout(function(){
+				i++;
+				resetMkPoint(i);
+			},1);
+		}
+	}
+	setTimeout(function(){
+		resetMkPoint(1);
+	},200)
+	
+	
+	
+	this.Move = function (prvePoint, newPoint, effect, setRotation) {
+10         var me = this,
+11                //当前帧数
+12                 currentCount = 0,
+13                //初始坐标
+14                _prvePoint = me._projection.lngLatToPoint(prvePoint),//将球面坐标转换为平面坐标
+15                //获取结束点的(x,y)坐标
+16                _newPoint = me._projection.lngLatToPoint(newPoint),
+17                //两点之间要循环定位的次数
+18                count = me._runTime / me._intervalTimer;
+19                 //两点之间匀速移动
+20                me._intervalFlag = setInterval(function () {
+21                   //两点之间当前帧数大于总帧数的时候，则说明已经完成移动
+22                   if (currentCount >= count) {
+23                   clearInterval(me._intervalFlag);
+24                   } else {
+25                 //动画移动
+26                 currentCount++;//计数
+27                       var x = effect(_prvePoint.x, _newPoint.x, currentCount, count),
+28                             y = effect(_prvePoint.y, _newPoint.y, currentCount, count);
+29                       //根据平面坐标转化为球面坐标
+30                 var pos = map.getMapType().getProjection().pointToLngLat(new BMap.Pixel(x, y));
+31                 //设置marker角度(两点之间的距离车的角度保持一致)
+32                   if (currentCount == 1) {
+33                       //转换角度                                                                                                                            
+34                       setRotation(prvePoint,newPoint, me._em);
+35                     }
+36                       //正在移动
+37 
+38                 me._em._newPointMark.setPosition(pos);
+39             }
+40                }, me._intervalTimer);
+41                me._em._prvePoint = newPoint;
+42     }
+
+
+});
+
+	
+
+
+
+</script> 
+
+</html> 
