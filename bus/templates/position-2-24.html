@@ -1,0 +1,244 @@
+<html lang="en"> 
+<head> 
+	<meta charset="utf-8" /> 
+	<title>路书</title> 
+	<style type="text/css">
+		body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+		#map_canvas{width:100%;height:100%;}
+
+	</style>
+	<script src="http://api.map.baidu.com/api?v=2.0&ak=1xW52e31qGyTjB19cLC8kZH8MRHU3S6E"></script>
+
+	<script type="text/javascript" src="{{ static('js/lushu.js') }}"></script>
+	<script type="text/javascript" src="{{ static('js/jquery-3.1.1.min.js') }}">//这边引入jQuery</script>
+</head> 
+<body> 
+	<div id="map_canvas"></div> 
+
+
+	<script> 
+	var map = new BMap.Map('map_canvas');
+	map.enableScrollWheelZoom();
+	map.centerAndZoom(new BMap.Point(119.2205783, 26.02993), 17);
+	
+	var point = new BMap.Point(119.2205783, 26.02993);
+	
+	var ls1_1 = new BMap.Point(119.21918,26.033299);
+	var ls1_2 = new BMap.Point(119.218857,26.034062);
+	
+	var ls2_1 = new BMap.Point(119.218426,26.034549);
+	var ls2_2 = new BMap.Point(119.21918,26.033299);
+	
+	var ls1_begin_pos, ls1_end_pos, ls2_begin_pos, ls2_end_pos;
+	
+	var lushu;
+	var lushu2;
+	var num = 10;//某地点在等的人数，做测试用，实际从数据库读取
+	
+	function getCookie(name) {
+					var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
+					return r ? r[1] : undefined;
+				}
+				
+	
+setInterval(function () {//会以指定周期时间无限运行下去
+
+	//////////////////这一段是加标注，这样在有动态添加多个地点的时候会使代码太冗长，用循环的话变量不能确定也不能绑定点击事件。如果把显示和添加等车人数分开，在哪里显示点击等车？最好在html中添加按钮会方便很多，而不是在map中做操作。
+	//补充：在添加绑定事件的时候使用那个标签的self属性，可以绑定到该标签具体值（把该值传到服务器，就可以根据每个标签做处理了。）前面用alert测试的时候，直接用的label，而不是this.xxx。这样会导致拿的label数据是最新设置的label值。
+	
+	/*
+	var opts = {
+	  position : point,    // 指定文本标注所在的地理位置
+	  offset   : new BMap.Size(30, -30)    //设置文本偏移量
+	}
+	
+	var label = new BMap.Label("点击我+1，目前共有"+num+"个人", opts);  // 创建文本标注对象
+		label.setStyle({
+			 color : "red",
+			 fontSize : "12px",
+			 height : "20px",
+			 lineHeight : "20px",
+			 fontFamily:"微软雅黑"
+		 });
+	console.log(label);
+	label.addEventListener("click",getAttr);
+	function getAttr(){
+		var p = label.getPosition();       //获取marker的位置
+		alert("marker的位置是" + p.lng + "," + p.lat);
+		num += 1; //做测试用，实际从数据库读取
+	}
+	map.addOverlay(label);
+	*/
+	//////////////////
+	
+	// 利用上面说的this.xxx绑定具体label
+	$.ajax({
+         type: "GET",
+		 url: '/label', 
+         cache: false, 
+		 dataType: 'json', 
+		 success: function (data) {
+			//用for动态生成标注，并且通过this.xxx绑定具体label用来控制每个label的数据。
+			for (var i in data){
+				console.log(i);
+				console.log(data[i][1]);
+				var point = new BMap.Point(data[i][1][0],data[i][1][1]);
+				
+				var opts = {
+				  position : point,    // 指定文本标注所在的地理位置
+				  offset   : new BMap.Size(30, -30)    //设置文本偏移量
+				}
+				
+				var label = new BMap.Label(i+' '+data[i][0], opts);  // 创建文本标注对象
+					label.setStyle({
+						 color : "red",
+						 fontSize : "12px",
+						 height : "20px",
+						 lineHeight : "20px",
+						 fontFamily:"微软雅黑"
+					 });
+					 
+				label.name = i+' '+data[i][0];
+				
+
+				label.addEventListener("click",getAt);
+				
+				function getAt(){
+					//var p = label.getPosition();       //获取marker的位置
+					//alert("marker的位置是" + p.lng + "," + p.lat);
+					alert(this.name);
+					$.ajax({
+						 type: "POST",
+						 url: '/label', 
+						 cache: false, 
+						 data: {
+						 '_xsrf': getCookie("_xsrf"),
+						 'message': this.name,
+						 },
+						 dataType: 'json', 
+						 success: function (data) {
+							//这里要判断一下小车是否在移动，如果是，则不赋值
+							alert(data['status']);
+							} });
+				}
+				
+				map.addOverlay(label);
+			}
+
+		} });
+		
+		
+	// 这个没有用到，主要是可以知道通过这个方式可以获得具体的Overlays
+	function deletePoint(){
+		var allOverlay = map.getOverlays();
+		for (var i = 0; i < allOverlay.length -1; i++){
+			if(allOverlay[i].getLabel().content == "我是id=1"){
+				map.removeOverlay(allOverlay[i]);
+				return false;
+			}
+		}
+	}
+	
+	
+	
+	
+	
+	$.ajax({
+         type: "GET",
+		 url: '/pos', 
+         cache: false, 
+		 dataType: 'json', 
+		 success: function (data) {
+			//这里要判断一下小车是否在移动，如果是，则不赋值
+			ls1_1 = ls1_2;
+			ls1_2 = new BMap.Point(data['ls1']['position_x'], data['ls1']['position_y']);
+			ls2_1 = ls2_2;
+			ls2_2 = new BMap.Point(data['ls2']['position_x'], data['ls2']['position_y']);
+			
+			} });
+	
+	console.log(ls1_1);
+	console.log(ls1_2);
+	console.log(ls2_1);
+	console.log(ls2_2);
+			
+    var driving = new BMap.DrivingRoute(map);
+	driving.search(ls1_1, ls1_2);
+	var driving1 = new BMap.DrivingRoute(map);
+	driving1.search(ls2_1, ls2_2);
+	
+	if(lushu==null||!lushu.getMoving()){
+		driving.setSearchCompleteCallback(function (result){
+			if (driving.getStatus() == BMAP_STATUS_SUCCESS) {
+				var plan = result.getPlan(0);
+				var arrPois =[];
+				for(var j=0;j<plan.getNumRoutes();j++){
+					var route = plan.getRoute(j);
+					arrPois= arrPois.concat(route.getPath());
+				}
+				map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));//这是显示一条线
+				map.setViewport(arrPois);
+				
+				if(lushu==null){
+					lushu = new BMapLib.LuShu(map, arrPois,{
+						defaultContent: "",
+						autoView: true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
+						icon: new BMap.Icon('http://developer.baidu.com/map/jsdemo/img/car.png', new BMap.Size(52, 26), {anchor: new BMap.Size(27, 13)}),
+						speed: 5,
+						enableRotation: true,//是否设置marker随着道路的走向进行旋转
+						landmarkPois: [
+						   {lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						   {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="http://map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
+						   {lng:116.381476,lat:39.974073,html:'肯德基早餐<div><img src="http://ishouji.baidu.com/resource/images/map/show_pic04.gif"/></div>',pauseTime:2}
+						]
+					});
+					lushu.start();
+
+				}
+			else{
+				console.log('gopath');
+				lushu.goPath(arrPois);
+			}
+			}
+		});
+	}
+	
+	if(lushu2==null||!lushu2.getMoving()){
+		driving1.setSearchCompleteCallback(function (result){
+			if (driving1.getStatus() == BMAP_STATUS_SUCCESS) {
+				var plan = result.getPlan(0);
+				var arrPois =[];
+				for(var j=0;j<plan.getNumRoutes();j++){
+					var route = plan.getRoute(j);
+					arrPois= arrPois.concat(route.getPath());
+				}
+				map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));//这是显示一条线
+				map.setViewport(arrPois);
+				
+				if(lushu2==null){
+					lushu2 = new BMapLib.LuShu(map, arrPois,{
+						defaultContent: "",
+						autoView: true,//是否开启自动视野调整，如果开启那么路书在运动过程中会根据视野自动调整
+						icon: new BMap.Icon('http://developer.baidu.com/map/jsdemo/img/car.png', new BMap.Size(52, 26), {anchor: new BMap.Size(27, 13)}),
+						speed: 5,
+						enableRotation: true,//是否设置marker随着道路的走向进行旋转
+						landmarkPois: [
+						   {lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						   {lng:116.315391,lat:39.964429,html:'高速公路收费<div><img src="http://map.baidu.com/img/logo-map.gif"/></div>',pauseTime:3},
+						   {lng:116.381476,lat:39.974073,html:'肯德基早餐<div><img src="http://ishouji.baidu.com/resource/images/map/show_pic04.gif"/></div>',pauseTime:2}
+						]
+					});
+					lushu2.start();
+
+				}
+			else{
+				console.log('gopath');
+				lushu2.goPath(arrPois);
+			}
+			}
+		});
+	}
+}, 5 * 1000);
+</script> 
+</body> 
+</html> 

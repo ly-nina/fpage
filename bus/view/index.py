@@ -3,7 +3,6 @@
 from view import route, url_for, View
 import random
 import config
-from view import Alipay_test
 
 
 
@@ -31,7 +30,7 @@ class About(View):
 @route('/position', name='position')
 class Position(View):
 	def get(self):
-		self.render('position.html')
+		self.render('position-2-24.html')
 
 		
 
@@ -49,38 +48,38 @@ class Position(View):
 	def get(self):
 		# print(self)
 		position = get_position()
-		self.finish({'position_x': position[0], 'position_y': position[1]})
-
+		position1 = get_position()
+		self.finish({
+			'ls1': {'position_x': position[0], 'position_y': position[1]},
+			'ls2': {'position_x': position1[0], 'position_y': position1[1]}
+			},
+		)
+		# self.finish({'a':1})
 
 def get_position():# 这个设计用得不习惯，我在这个文件中没办法创建全局变量，因为是从其他文件调用这里的class，变量好像会无效。用config试试
-	print(config.i)
+	# print(config.i)
 	position = [[119.2205783, 26.02993],[119.219333,26.032609],[119.21918,26.033299],[119.218857,26.034062],[119.218426,26.034549],[119.218021,26.034898],[119.217141,26.03575]]
-	pos = position[config.i]
-	config.i = (config.i+1) % 7
-	return pos
+	# pos = position[config.i]
+	# config.i = (config.i+1) % 7
+	return position[int(random.random()*10) % 7]
 	
-	
-@route('/alipay', name='alipay')
-class Alipay(View):
-	def get(self):
-		self.render('alipay.html')
-	
-	
-	def post(self):
-		subject = self.get_argument("WIDsubject")
-		out_trade_no = self.get_argument("WIDout_trade_no")
-		total_amount = self.get_argument("WIDtotal_amount")
-		body = self.get_argument("WIDbody")
-		print(total_amount)
-		
-		requestBuilder = Alipay_test.AlipayTradePagePayContentBuilder()
-		requestBuilder.set_body(body)
-		requestBuilder.set_subject(subject)
-		requestBuilder.set_total_amount(total_amount)
-		requestBuilder.set_out_trade_no(out_trade_no)
-		
-		aop = Alipay_test.AlipayTradeService(Alipay_test.config_list)
-		response = aop.pagePay(requestBuilder, Alipay_test.config_list['return_url'], Alipay_test.config_list['notify_url'])
-		
-		self.write(response)
 
+@route('/label', name='label')
+class Label(View):
+	
+	def get(self):
+		
+		self.finish(config.POSITION)
+		
+	def post(self):
+	
+		label = self.get_argument('message')
+		# num = self.get_argument('')
+		# 
+		label = label.split()[0]
+		config.POSITION[label][0] += 1
+		print(config.POSITION[label][0])
+		self.finish({'status': 'success'})
+
+		
+		
