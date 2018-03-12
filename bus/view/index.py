@@ -30,7 +30,7 @@ class About(View):
 @route('/position', name='position')
 class Position(View):
 	def get(self):
-		self.render('position-2-24.html')
+		self.render('position.html')
 
 		
 

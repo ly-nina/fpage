@@ -1,82 +1,206 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<html lang="en"> 
+<head> 
+	<meta charset="utf-8" /> 
+	<title>路书</title> 
 	<style type="text/css">
-	body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+		body, html{width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+		#map_canvas{width:100%;height:100%;}
+
 	</style>
-	<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=1xW52e31qGyTjB19cLC8kZH8MRHU3S6E"></script>
-	<script type="text/javascript" src="http://api.map.baidu.com/library/LuShu/1.2/src/LuShu_min.js"></script>
+	<script src="http://api.map.baidu.com/api?v=2.0&ak=1xW52e31qGyTjB19cLC8kZH8MRHU3S6E"></script>
+
+	<script type="text/javascript" src="{{ static('js/lushu.js') }}"></script>
 	<script type="text/javascript" src="{{ static('js/jquery-3.1.1.min.js') }}">//这边引入jQuery</script>
-	<title>地图展示</title>
-</head>
-<body>
-	<div id="allmap"></div>
-</body>
-</html>
-<script type="text/javascript">
-	// 百度地图API功能
-	var map = new BMap.Map("allmap");    // 创建Map实例
-	var p1 = new BMap.Point(119.2215783, 26.02993)
-	
-	map.centerAndZoom(new BMap.Point(119.2205783, 26.02993), 17);  // 初始化地图,设置中心点坐标和地图级别
+</head> 
+<body> 
+	<div id="map_canvas"></div> 
+
+	<script>
+	var map = new BMap.Map("map_canvas");
+	map.enableScrollWheelZoom();
+	map.centerAndZoom(new BMap.Point(119.2205783, 26.02993), 17);//中心点
 	
 	
-	var pt = new BMap.Point(119.2205783, 26.02993);
-	var p1 = new BMap.Point(119.219333,26.032609);
-	var test = new BMap.Point(119.218426,26.034549);
-	//var myIcon = new BMap.Icon("http://lbsyun.baidu.com/jsdemo/img/fox.gif", new BMap.Size(300,157)); //创建小狐狸
-	var marker2 = new BMap.Marker(pt);  // 创建标注
-	var marker3 = new BMap.Marker(p1);  // 创建标注
-
-	map.addOverlay(marker2);              // 将标注添加到地图中
-	map.addOverlay(marker3);              // 将标注添加到地图中
-	marker2.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
-	marker3.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+	/* block1 
+		和车辆数量有关
+    */
+	var ls1_1 = new BMap.Point(119.21918,26.033299);
+	var ls1_2 = new BMap.Point(119.218857,26.034062);//一辆车的起始位置
 	
-	// ajax 去拿数据，然后更新。
-	//map.clearOverlays();   //清除所有标记
+	var ls2_1 = new BMap.Point(119.218426,26.034549);
+	var ls2_2 = new BMap.Point(119.21918,26.033299);//第二辆车的起始位置
 	
-    //添加地图类型控件
-	map.addControl(new BMap.MapTypeControl({
-		mapTypes:[
-            BMAP_NORMAL_MAP,
-            BMAP_HYBRID_MAP
-        ]}));	  
-	map.setCurrentCity("北京");          // 设置地图显示的城市 此项是必须设置的
-	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
-	var lushu;
+	var lushu1;
+	var lushu2;
+	/* block1     */
 	
-	var pos=[[119.21918,26.033299],[119.218857,26.034062],[119.218426,26.034549],[119.218021,26.034898],[119.217141,26.03575]];
+	function getCookie(name){
+		var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
+		return r ? r[1] : undefined;
+	}
+	
+	setInterval(function(){
+	////////这一段是给map加标签，显示等车人数，并且点击后人数+1。
+		$.ajax({
+			type: "GET",
+			url: '/label',
+			cache: false,
+			dataType: 'json',
+			success: function(data){
+				for (var i in data){
+					//console.log(i);
+					//console.log(data[i][1]);
+					var point = new BMap.Point(data[i][1][0], data[i][1][1]);
+					
+					var opts = {
+						position: point,
+						offset: new BMap.Size(30, -30)
+					};
+					var label = new BMap.Label(i+' '+data[i][0], opts);
+					label.setStyle({
+						color: "red",
+						fontSoze: "12px",
+						height: "20px",
+						lineHeight: "20px",
+						fontFamily: "微软雅黑"
+					});
+					label.name = i + ' ' + data[i][0];
+					
+					label.addEventListener("click", getAt);
+					
+					function getAt(){
+						alert(this.name);
+						$.ajax({
+							type: "POST",
+							url : '/label',
+							cache: false,
+							data: {
+							'_xsrf': getCookie("_xsrf"),
+							'message': this.name,
+							},
+							dataType: 'json',
+							success: function(data){
+								alert(data['status']);
+							},
+						});
+					}
+					map.addOverlay(label);
+				}
+			}
+		});
+	////
 	
 	
-//------------------------------------------------	
-
-
-//------------------------------------------------	
-
-//重写版本。根据步骤一步一步做
-
-
-//------------------------------------------------
-
-/*
-	setInterval(function () {//会以指定周期时间无限运行下去
-        $.ajax({
-         type: "GET",
-		 url: '/pos', 
-         cache: false, 
-		 dataType: 'json', 
-		 success: function (data) {
-			pass;
-			
-			} });
-    }, 10 * 1000);
-*/	
+	/* 取新定位数据 */
+	$.ajax({
+		type: "GET",
+		url: '/pos',
+		cache: false,
+		dataType: 'json',
+		success: function(data){
+			//这里要先判断小车是否在移动，如果是，则不赋值。
+			/* block2
+				和车辆数量有关
+			*/
+			ls1_1 = ls1_2;
+			ls1_2 = new BMap.Point(data['ls1']['position_x'], data['ls1']['position_y']);
+			ls2_1 = ls2_2;
+			ls2_2 = new BMap.Point(data['ls2']['position_x'], data['ls2']['position_y']);
+		
+			/* block2
+				和车辆数量有关
+			*/
+		},
+	});
+	console.log(ls1_1);
+	console.log(ls1_2);
 	
-</script>
+	/* block3
+		和车辆数量有关。重复
+	*/
+	var driving1 = new BMap.DrivingRoute(map);
+	driving1.search(ls1_1, ls1_2);
+	
+	if (lushu1==null||!lushu1.getMoving()){
+		driving1.setSearchCompleteCallback(function (result){
+			if(driving1.getStatus() == BMAP_STATUS_SUCCESS){
+				var plan = result.getPlan(0);
+				var arrPois = [];
+				for(var j=0;j<plan.getNumRoutes();j++){
+					var route = plan.getRoute(j);
+					arrPois = arrPois.concat(route.getPath());
+				}
+				//map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));//显示路线痕迹
+				map.setViewport(arrPois);
+				
+				if(lushu1==null){
+					lushu1 =new BMapLib.LuShu(map, arrPois, {
+						default: "",
+						autoView: true,
+						icon: new BMap.Icon('http://developer.baidu.com/map/jsdemo/img/car.png', new BMap.Size(52, 26), {anchor: new BMap.Size(27, 13)}),
+						speed: 5,
+						enableRotation: true,
+						landmarkPois:[
+						{lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						{lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						]
+					});
+					lushu1.start();
+				}
+				else{
+					console.log("GOPATH");
+					lushu1.goPath(arrPois);
+				}
+			}
+		});
+	}
+	
+	/* block3 	*/
+	
+	
+	var driving2 = new BMap.DrivingRoute(map);
+	driving2.search(ls2_1, ls2_2);
+	
+	if (lushu2==null||!lushu2.getMoving()){
+		driving2.setSearchCompleteCallback(function (result){
+			if(driving2.getStatus() == BMAP_STATUS_SUCCESS){
+				var plan = result.getPlan(0);
+				var arrPois = [];
+				for(var j=0;j<plan.getNumRoutes();j++){
+					var route = plan.getRoute(j);
+					arrPois = arrPois.concat(route.getPath());
+				}
+				//map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));//显示路线痕迹
+				map.setViewport(arrPois);
+				
+				if(lushu2==null){
+					lushu2 =new BMapLib.LuShu(map, arrPois, {
+						default: "",
+						autoView: true,
+						icon: new BMap.Icon('http://developer.baidu.com/map/jsdemo/img/car.png', new BMap.Size(52, 26), {anchor: new BMap.Size(27, 13)}),
+						speed: 5,
+						enableRotation: true,
+						landmarkPois:[
+						{lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						{lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						]
+					});
+					lushu2.start();
+				}
+				else{
+					console.log("GOPATH");
+					lushu2.goPath(arrPois);
+				}
+			}
+		});
+	}
 
-
-
-
+	
+	
+	}, 5*1000);
+	
+	
+	
+	</script>
+	</body> 
+</html> 
