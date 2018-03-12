@@ -83,3 +83,21 @@ class Label(View):
 
 		
 		
+		
+@route('/console', name='console')
+class Console(View):
+	def get(self):
+		self.render('console.html', pos = config.POSITION)
+		
+	def post(self):
+		message = self.get_argument('message')
+		print(message)
+		if message in config.POSITION:
+
+			config.POSITION[message][0] = 0
+			self.finish({'status': '清零成功'})
+			# self.render('console.html', pos = config.POSITION)
+		else:
+			self.finish({'status': 'failed'})
+		
+		
