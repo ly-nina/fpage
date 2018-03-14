@@ -68,7 +68,8 @@
 					
 					label.addEventListener("click", getAt);
 					
-					function getAt(){
+					function getAt(e){
+						console.log(e);
 						alert(this.name);
 						$.ajax({
 							type: "POST",
@@ -157,7 +158,9 @@
 	
 	/* block3 	*/
 	
-	
+	/* block3
+		和车辆数量有关。重复
+	*/
 	var driving2 = new BMap.DrivingRoute(map);
 	driving2.search(ls2_1, ls2_2);
 	
@@ -194,7 +197,7 @@
 			}
 		});
 	}
-
+	/* block3 	*/
 	
 	
 	}, 5*1000);
