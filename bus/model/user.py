@@ -14,7 +14,7 @@ def random_str(random_length=16):
     length = len(chars) - 1
     random = Random()
     for i in range(random_length):
-        str+=chars[random.randint(0, length)]
+        str += chars[random.randint(0, length)]
     return str
 
 
@@ -68,13 +68,13 @@ class User(BaseModel):
         state = USER_STATE.ADMIN if cls.count() == 0 else USER_STATE.NORMAL  # first user is admin
         the_time = int(time.time())
         return cls.create(username=username, password=password_final, salt=salt, state=state, key=random_str(32),
-                          key_time = the_time, reg_time = the_time)
+                          key_time=the_time, reg_time=the_time)
 
     @classmethod
     def auth(cls, username, password):
         username = username.lower()
         try:
-            u = cls.get(cls.username==username)
+            u = cls.get(cls.username == username)
         except DoesNotExist:
             return False
         password_md5 = md5(password.encode('utf-8')).hexdigest()
@@ -94,7 +94,7 @@ class User(BaseModel):
     @classmethod
     def exist(cls, username):
         username = username.lower()
-        return cls.select().where(cls.username==username).exists()
+        return cls.select().where(cls.username == username).exists()
 
     @classmethod
     def get_by_key(cls, key):
@@ -113,4 +113,4 @@ class User(BaseModel):
 
     @classmethod
     def count(cls):
-        return cls.select(cls.state>0).count()
+        return cls.select(cls.state > 0).count()

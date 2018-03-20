@@ -11,35 +11,11 @@
 {% end %}
 
 {% block body %}
-	<script type="text/javascript" src="{{ static('js/jquery-3.1.1.min.js') }}">//这边引入jQuery</script>
-	<script>
-	
-	function getCookie(name){
-		var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
-		return r ? r[1] : undefined;
-	}
-	function clean(name){
-		$.ajax({
-			type: "POST",
-			url : '/console',
-			cache: false,
-			data: {
-			'_xsrf': getCookie("_xsrf"),
-			'message': name,
-			},
-			dataType: 'json',
-			success: function(data){
-				alert(data['status']);
-				window.location.reload();
-			},
-		});
-	}
 
-	</script>
 <div class="container">
     <div class="page-title">管理控制台</div>
 
-
+	{% if req.current_user() %}
 		{% raw xsrf_token %}
 		<p>学生街左：{{ pos['学生街左'][0] }}
 		<button name="学生街左" onclick="clean('学生街左')">清零</button>
@@ -63,14 +39,34 @@
 		<p>南区食堂右：{{ pos['南区食堂右'][0] }}
 		<button name="南区食堂右" onclick="clean('南区食堂右')">清零</button>
 		</p>
-
+	{% end %}
 </div>
 {% end %}
 
 {% block script %}
-<script>
-    (function() {
-        ;
-	})();
-</script>
+<script type="text/javascript" src="{{ static('js/jquery-3.1.1.min.js') }}">//这边引入jQuery</script>
+	<script>
+
+	function getCookie(name){
+		var r = document.cookie.match("\\b" + name + "=([^;]*)\\b");
+		return r ? r[1] : undefined;
+	}
+	function clean(name){
+		$.ajax({
+			type: "POST",
+			url : '/console',
+			cache: false,
+			data: {
+			'_xsrf': getCookie("_xsrf"),
+			'message': name,
+			},
+			dataType: 'json',
+			success: function(data){
+				alert(name+' '+data['status']);
+				window.location.reload();
+			},
+		});
+	}
+
+	</script>
 {% end %}

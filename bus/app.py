@@ -25,7 +25,7 @@ application = tornado.web.Application(
 config.app = application
 
 if __name__ == "__main__":
-    if len(argv) > 1 and  argv[1][:6] == '-port=':
+    if len(argv) > 1 and argv[1][:6] == '-port=':
         config.PORT = int(argv[1][6:])
 
     application.listen(config.PORT, address=config.HOST)

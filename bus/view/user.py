@@ -27,7 +27,7 @@ class SignIn(NoLoginView):
             self.set_secure_cookie("u", u.key, expires_days=expires)
             if next:
                 return self.redirect(next)
-            return self.redirect(url_for("console"))
+            return self.redirect(url_for("index"))
 
         self.render('user/signin.html')
 

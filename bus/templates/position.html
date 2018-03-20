@@ -69,8 +69,8 @@
 					label.addEventListener("click", getAt);
 					
 					function getAt(e){
-						console.log(e);
-						alert(this.name);
+						//console.log(e);
+						var name = this.name;
 						$.ajax({
 							type: "POST",
 							url : '/label',
@@ -81,7 +81,9 @@
 							},
 							dataType: 'json',
 							success: function(data){
-								alert(data['status']);
+								if(data['status']=='success'){
+									alert(name+"等车成功");
+								}
 							},
 						});
 					}
@@ -104,9 +106,9 @@
 				和车辆数量有关
 			*/
 			ls1_1 = ls1_2;
-			ls1_2 = new BMap.Point(data['ls1']['position_x'], data['ls1']['position_y']);
+			ls1_2 = new BMap.Point(data['xb1']['position_x'], data['xb1']['position_y']);
 			ls2_1 = ls2_2;
-			ls2_2 = new BMap.Point(data['ls2']['position_x'], data['ls2']['position_y']);
+			ls2_2 = new BMap.Point(data['xb2']['position_x'], data['xb2']['position_y']);
 		
 			/* block2
 				和车辆数量有关
@@ -137,12 +139,13 @@
 				if(lushu1==null){
 					lushu1 =new BMapLib.LuShu(map, arrPois, {
 						default: "",
+                        defaultContent: "xb1",
 						autoView: true,
 						icon: new BMap.Icon('http://developer.baidu.com/map/jsdemo/img/car.png', new BMap.Size(52, 26), {anchor: new BMap.Size(27, 13)}),
 						speed: 5,
 						enableRotation: true,
 						landmarkPois:[
-						{lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						{lng:119.219035,lat:26.033596,html:'图书馆',pauseTime:2},
 						{lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
 						]
 					});
@@ -161,6 +164,7 @@
 	/* block3
 		和车辆数量有关。重复
 	*/
+    /*
 	var driving2 = new BMap.DrivingRoute(map);
 	driving2.search(ls2_1, ls2_2);
 	
@@ -197,6 +201,7 @@
 			}
 		});
 	}
+    */
 	/* block3 	*/
 	
 	

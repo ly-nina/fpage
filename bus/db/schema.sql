@@ -4,9 +4,10 @@ drop table if exists wait;
 create table gps
 (id integer primary key autoincrement,
 name string not null,
-time datetime default (datetime('now', 'localtime'))  
+time datetime default (datetime('now', 'localtime')),
 latlng string not null,
-);
+temperature integer,
+humidity integer);
 
 
 create table wait
