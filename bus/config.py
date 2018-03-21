@@ -9,7 +9,7 @@ TEMPLATE = 'tornado'  # jinja2/mako/tornado
 DATABASE_URI = "sqlite:///database.db"
 COOKIE_SECRET = "6aOO5ZC55LiN5pWj6ZW/5oGo77yM6Iqx5p+T5LiN6YCP5Lmh5oSB44CC"
 i = 0
-DB_PATH = "sqlite:///db//bus.db"
+DB_PATH = "./db/bus.db"
 # DB_PATH = r'F:\website\fpage\bus\db\bus.db'
 # DB_PATH = r'E:\Study\Ending\website\fpage\bus\db\bus.db'
 
