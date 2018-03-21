@@ -1,6 +1,8 @@
 import sqlite3
 import time
 
+# 这是为了循环插入数据
+
 DB_PATH = r'F:\website\fpage\bus\db\bus.db'
 SQL_SCHEMA = r'F:\website\fpage\bus\db\schema.sql'
 

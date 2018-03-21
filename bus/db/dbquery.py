@@ -2,6 +2,8 @@ import sqlite3
 import time
 import datetime
 
+# 这是为了查询数据
+
 # DB_PATH = r'F:\website\fpage\bus\db\bus.db'
 DB_PATH = r'E:\Study\Ending\website\fpage\bus\db\bus.db'
 
