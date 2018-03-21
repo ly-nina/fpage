@@ -1,16 +1,17 @@
 import sqlite3
 import time
 
-
+DB_PATH = r'F:\website\fpage\bus\db\bus.db'
+SQL_SCHEMA = r'F:\website\fpage\bus\db\schema.sql'
 
 def create_db(conn):
-    with open(r'F:\website\fpage\bus\db\schema.sql', 'r') as f:
+    with open(SQL_SCHEMA, 'r') as f:
         a = f.read()
         c = conn.cursor()
         c.executescript(a)
         
         
-conn = sqlite3.connect(r'F:\website\fpage\bus\db\bus.db')
+conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
 
 #create_db(conn)
@@ -30,9 +31,8 @@ position = ['119.213901,26.038254','119.213901,26.039569','119.21471,26.040316',
 # position = position[::-1]
 
 
-
 for i in position:
-    c.execute('insert into gps(name, latlng, temperature, humidity) values("xb1","%s", 25, 50)' %i)
+    c.execute('insert into gps(name, latlng, temperature, humidity) values("xb1","%s", 25, 50)' % i)
     conn.commit()
     time.sleep(5)
 

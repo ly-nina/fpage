@@ -47,7 +47,7 @@ class Position(View):
         # print(self)
         position = get_position()
         position1 = get_position()
-        conn = sqlite3.connect(r'F:\website\fpage\bus\db\bus.db')
+        conn = sqlite3.connect(config.DB_PATH)
         c = conn.cursor()
         cursor = c.execute("select * from gps a where exists(select * from (select name,max(time) as FTime from gps group by name) x where x.name=a.name and a.time=x.FTime);")
         temp = {}
@@ -78,7 +78,7 @@ class Label(View):
         # num = self.get_argument('')
         #
         label = label.split()[0]
-        conn = sqlite3.connect(r'F:\website\fpage\bus\db\bus.db')
+        conn = sqlite3.connect(config.DB_PATH)
         c = conn.cursor()
         cursor = c.execute('insert into wait(location) values("%s")' % label)
         conn.commit()
@@ -110,16 +110,18 @@ class Chart(View):
     def get(self):
         time_list, final =echarts()
         print(time_list, final)
-        self.render()
+        self.render(time_list=time_list, data=final)
+
 
 def echarts():
-    conn = sqlite3.connect(r'F:\website\fpage\bus\db\bus.db')
+    conn = sqlite3.connect(config.DB_PATH)
     c = conn.cursor()
     time_list = get_time()
     temp = get_data(time_list, c)
     final = excel_data(temp)
     conn.close()
     return time_list, final
+
 
 def get_time():
     time_now = datetime.datetime.now()
@@ -141,16 +143,15 @@ def get_data(time_list, c):
     return temp
     
 def excel_data(temp):
-    POSITION = {'学生街左': [0, [119.21449,26.040397]], '学生街右': [1, [119.2155,26.039756]], '图书馆左': [2, [119.219125,26.033235]], '图书馆右': [3, [119.219233,26.033316]], '南区食堂左': [4, [119.218029,26.027833]], '南区食堂右': [5, [119.218213,26.028004]], }
         
-    x = {}
-    for i in POSITION:
+    name = {}
+    for i in config.POSITION:
         a=[]
         for j in temp:
             if i in temp[j]:
                 a.append(temp[j][i])
             else:
                 a.append(0)
-        x[i] = a
-    return x
+        name[i] = a
+    return name
 

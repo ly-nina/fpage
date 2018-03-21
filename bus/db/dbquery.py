@@ -2,6 +2,9 @@ import sqlite3
 import time
 import datetime
 
+# DB_PATH = r'F:\website\fpage\bus\db\bus.db'
+DB_PATH = r'E:\Study\Ending\website\fpage\bus\db\bus.db'
+
 def get_time():
     time_now = datetime.datetime.now()
     return [(time_now+datetime.timedelta(hours=-i)).strftime("%Y-%m-%d %H:%M:%S") for i in range(6)][::-1]
@@ -37,7 +40,7 @@ def excel_data(temp):
     
     
     """ 这一段是测试gps表  """
-# conn = sqlite3.connect(r'F:\website\fpage\bus\db\bus.db')
+# conn = sqlite3.connect(DB_PATH)
 # c = conn.cursor()
 # 
 # 
@@ -55,22 +58,9 @@ def excel_data(temp):
 
 
 """ 这一段是测试获取图表数据 """
-conn = sqlite3.connect(r'F:\website\fpage\bus\db\bus.db')
+conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
 
-# cursor = c.execute("select location, count(location) as num from wait where time between '2018-03-21 01:23:48' and '2018-03-21 03:23:48' group by location;")
-
-end_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S") # 当前时间（小时）
-begin_time = (datetime.datetime.now()+datetime.timedelta(hours=-5)).strftime("%Y-%m-%d %H:%M:%S") # 过去5个小时
-
-# cursor = c.execute("select location, count(location) as num from wait where time(time) between time('%s') and time('%s') group by location;" % (begin_time, end_time))
-
-
-
-# temp = {}
-# for i in cursor:
-#     print(i)
-#     time.sleep(0.1)
     
 time_list = get_time()
 temp = get_data(time_list)
