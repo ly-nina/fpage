@@ -18,7 +18,7 @@
 	<script>
 	var map = new BMap.Map("map_canvas");
 	map.enableScrollWheelZoom();
-	map.centerAndZoom(new BMap.Point(119.2205783, 26.02993), 17);//中心点
+	map.centerAndZoom(new BMap.Point(119.217319,26.037118), 17);//中心点
 	
 	
 	/* block1 
@@ -36,10 +36,10 @@
 			/* block2
 				和车辆数量有关
 			*/
-			ls1_1 = new BMap.Point(data['xb1']['position_x'], data['xb1']['position_y']);
-			ls1_2 = new BMap.Point(data['xb1']['position_x'], data['xb1']['position_y']);
-			ls2_1 = new BMap.Point(data['xb2']['position_x'], data['xb2']['position_y']);
-			ls2_2 = new BMap.Point(data['xb2']['position_x'], data['xb2']['position_y']);
+			ls1_1 = new BMap.Point(data['XB01']['position_x'], data['XB01']['position_y']);
+			ls1_2 = new BMap.Point(data['XB01']['position_x'], data['XB01']['position_y']);
+			ls2_1 = new BMap.Point(data['XB02']['position_x'], data['XB02']['position_y']);
+			ls2_2 = new BMap.Point(data['XB02']['position_x'], data['XB02']['position_y']);
 		
 			/* block2
 				和车辆数量有关
@@ -128,9 +128,9 @@
 				和车辆数量有关
 			*/
 			ls1_1 = ls1_2;
-			ls1_2 = new BMap.Point(data['xb1']['position_x'], data['xb1']['position_y']);
+			ls1_2 = new BMap.Point(data['XB01']['position_x'], data['XB01']['position_y']);
 			ls2_1 = ls2_2;
-			ls2_2 = new BMap.Point(data['xb2']['position_x'], data['xb2']['position_y']);
+			ls2_2 = new BMap.Point(data['XB02']['position_x'], data['XB02']['position_y']);
 		
 			/* block2
 				和车辆数量有关
@@ -162,7 +162,7 @@
 				if(lushu1==null){
 					lushu1 =new BMapLib.LuShu(map, arrPois, {
 						default: "",
-                        defaultContent: "xb1",
+                        defaultContent: "XB01",
 						autoView: true,
 						icon: new BMap.Icon('http://developer.baidu.com/map/jsdemo/img/car.png', new BMap.Size(52, 26), {anchor: new BMap.Size(27, 13)}),
 						speed: 50,

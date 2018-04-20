@@ -34,7 +34,7 @@ position = ['119.2025935650,26.0355478269','119.2031085491,26.0377843661','119.2
 
 while True:
     for i in position:
-        c.execute('insert into gps(name, latlng, temperature, humidity) values("xb1","%s", 25, 50)' % i)
+        c.execute('insert into gps(name, latlng, temperature, humidity) values("XB01","%s", 25, 50)' % i)
         conn.commit()
         time.sleep(5)
     
