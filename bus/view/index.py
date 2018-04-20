@@ -5,7 +5,8 @@ from view import route, url_for, View
 import random
 import config
 import datetime
-
+import requests
+import json
 
 @route('/', name='index')
 class Index(View):
@@ -53,7 +54,11 @@ class Position(View):
         temp = {}
         for i in cursor:
             pos = i[3].split(',')
-            temp[i[1]] = {'position_x': float(pos[0]), 'position_y': float(pos[1]), 'temperature': i[4], 'humidity': i[5]}
+            # print('x:',float(pos[0]), 'y:', float(pos[1]))
+            x = get_street_baidu(float(pos[1]),float(pos[0]))
+            lat = x['lat']
+            lng = x['lng']
+            temp[i[1]] = {'position_x': lng, 'position_y': lat, 'temperature': i[4], 'humidity': i[5]}
         c.close()
         self.finish(temp,
         )
@@ -66,6 +71,25 @@ def get_position():  # 这个设计用得不习惯，我在这个文件中没办
     # pos = position[config.i]
     # config.i = (config.i+1) % 7
     return position[int(random.random()*10) % 7]
+
+    
+def get_street_baidu(lat_gps, lng_gps):
+    # 输入gps坐标，逆地址解析返回百度地图地址信息
+    try:
+        url = 'http://api.map.baidu.com/geocoder/v2/?&' \
+              'location=' + str(lat_gps) + ',' + str(lng_gps) + \
+              '&output=json&ak=1xW52e31qGyTjB19cLC8kZH8MRHU3S6E&extensions_road=ture&coordtype=wgs84ll'
+        response = requests.get(url)
+        string = response.content
+        json_data = json.loads(string, encoding='utf8')
+        if 'result' in json_data.keys():
+            result = json_data['result']
+            street = result['location']
+        else:
+            street = None
+    except Exception as e:
+        print(e)
+    return street
 
     
 @route('/label', name='label')

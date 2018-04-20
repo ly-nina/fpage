@@ -24,11 +24,33 @@
 	/* block1 
 		和车辆数量有关
     */
-	var ls1_1 = new BMap.Point(119.21918,26.033299);
-	var ls1_2 = new BMap.Point(119.218857,26.034062);//一辆车的起始位置
+    var ls1_1;
+    var ls1_2;
+    $.ajax({
+		type: "GET",
+		url: '/pos',
+		cache: false,
+		dataType: 'json',
+		success: function(data){
+			//这里要先判断小车是否在移动，如果是，则不赋值。
+			/* block2
+				和车辆数量有关
+			*/
+			ls1_1 = new BMap.Point(data['xb1']['position_x'], data['xb1']['position_y']);
+			ls1_2 = new BMap.Point(data['xb1']['position_x'], data['xb1']['position_y']);
+			ls2_1 = new BMap.Point(data['xb2']['position_x'], data['xb2']['position_y']);
+			ls2_2 = new BMap.Point(data['xb2']['position_x'], data['xb2']['position_y']);
+		
+			/* block2
+				和车辆数量有关
+			*/
+		},
+	});
+	//var ls1_1 = new BMap.Point(119.21918,26.033299);
+	//var ls1_2 = new BMap.Point(119.218857,26.034062);//一辆车的起始位置
 	
-	var ls2_1 = new BMap.Point(119.218426,26.034549);
-	var ls2_2 = new BMap.Point(119.21918,26.033299);//第二辆车的起始位置
+	//var ls2_1 = new BMap.Point(119.218426,26.034549);
+	//var ls2_2 = new BMap.Point(119.21918,26.033299);//第二辆车的起始位置
 	
 	var lushu1;
 	var lushu2;
@@ -121,8 +143,9 @@
 	/* block3
 		和车辆数量有关。重复
 	*/
-	var driving1 = new BMap.DrivingRoute(map);
+	var driving1 = new BMap.WalkingRoute(map);
 	driving1.search(ls1_1, ls1_2);
+    // driving1.disableAutoViewport(); //禁用自动调整地图层级，但是没有效果
 	
 	if (lushu1==null||!lushu1.getMoving()){
 		driving1.setSearchCompleteCallback(function (result){
@@ -134,7 +157,7 @@
 					arrPois = arrPois.concat(route.getPath());
 				}
 				//map.addOverlay(new BMap.Polyline(arrPois, {strokeColor: '#111'}));//显示路线痕迹
-				map.setViewport(arrPois);
+				//map.setViewport(arrPois);//设置地图视野
 				
 				if(lushu1==null){
 					lushu1 =new BMapLib.LuShu(map, arrPois, {
@@ -146,7 +169,7 @@
 						enableRotation: true,
 						landmarkPois:[
 						{lng:119.219035,lat:26.033596,html:'图书馆',pauseTime:2},
-						{lng:116.314782,lat:39.913508,html:'加油站',pauseTime:2},
+						{lng:116.314782,lat:39.913508,html:'南门',pauseTime:2},
 						]
 					});
 					lushu1.start();
