@@ -185,7 +185,7 @@ class Hi(View):
     def get(self):
         self.render()
     
-    def post():
+    def post(self):
         data = self.get_argument('pos')
         print(data)
         self.finish("{'state': 'success'}")

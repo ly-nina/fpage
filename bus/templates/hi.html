@@ -9,7 +9,6 @@
 	<script type="text/javascript" src="{{ static('js/jquery-3.1.1.min.js') }}">//这边引入jQuery</script>
 </head> 
 <body> 
-	<div id="map_canvas"></div> 
 
 	<script>
 
@@ -29,23 +28,19 @@
     function showPosition(position){
         $.ajax({
             type: "POST",
-            url : '/label',
+            url : '/hi',
             cache: false,
             data: {
             '_xsrf': getCookie("_xsrf"),
             'message': [position.coords.latitude,position.coords.longitude],
             },
             dataType: 'json',
-            success: function(data){
-                
-                }
-            },
-        });    
- 
+            success: function(data){}
+        });
     }
     
 	setInterval(function(){
-        geolocation();
+        getLocation();
 	}, 5*1000);
 	
 	
