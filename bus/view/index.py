@@ -179,3 +179,13 @@ def excel_data(temp):
         name[i] = a
     return name
 
+    
+@route('/pos', name='pos')
+class Pos(View):
+    def get(self):
+        self.render()
+    
+    def post():
+        data = self.get_argument('pos')
+        print(data)
+        self.finish("{'state': 'success'}")
