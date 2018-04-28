@@ -45,24 +45,7 @@
     }
     
 	setInterval(function(){
-
-        $.ajax({
-            type: "POST",
-            url : '/label',
-            cache: false,
-            data: {
-            '_xsrf': getCookie("_xsrf"),
-            'message': this.name,
-            },
-            dataType: 'json',
-            success: function(data){
-                if(data['status']=='success'){
-                    alert(name+"等车成功");
-                }
-            },
-        });
-
-    });	
+        geolocation();
 	}, 5*1000);
 	
 	

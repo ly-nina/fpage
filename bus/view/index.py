@@ -180,8 +180,8 @@ def excel_data(temp):
     return name
 
     
-@route('/pos', name='pos')
-class Pos(View):
+@route('/hi', name='hi')
+class Hi(View):
     def get(self):
         self.render()
     
